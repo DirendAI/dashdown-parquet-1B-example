@@ -1,20 +1,18 @@
 ---
-title: 1.7 Billion Rides
+title: 1.6 Billion Rides
 description: >
   Every NYC yellow-cab, green-cab, Uber and Lyft trip since January 2020 —
   queried straight from the raw TLC Parquet files by DuckDB, rebuilt nightly
   on GitHub Actions, served as a static page.
 ---
 
-# 1.7 billion rides. One duck. Zero servers.
+# 1.6 billion rides. One duck. Zero servers.
 
 Every chart on this page is a SQL query running on **DuckDB** over the **raw
 Parquet files** published by the [NYC Taxi & Limousine Commission](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) —
 no warehouse, no ETL, no server. A GitHub Actions job re-downloads the data
 and rebuilds the page every night, so when TLC publishes a new month, it shows
 up here on its own.
-
-## The whole market
 
 <Grid cols=4>
 <Counter data={kpis} column="trips" label="Trips analyzed" format="number" decimals=0 />
@@ -25,23 +23,34 @@ up here on its own.
 
 ## Taxis vs ride-hail since 2020
 
+The stacked line below is the whole story in one shape: six years of monthly
+trips, split across the yellow cab, the green cab, Uber and Lyft.
+
 <LineChart data={monthly_by_service} x="month" y="trips" series="service" stacked title="Monthly trips by service" />
 
-<Ask data={monthly_by_service} label="What happened here?"
-     ask="In 3-4 sentences, tell the story of NYC ground transport since 2020: the COVID collapse, the recovery, and how Uber, Lyft and the yellow cab split the market. Cite a few concrete numbers." />
+<Ask data={monthly_by_service} inline>Write one flowing paragraph, in the voice of a data journalist, telling the story this chart shows: the COVID-19 collapse in early 2020, the slow recovery, and how Uber, Lyft and the yellow cab ended up splitting the market. Cite a few concrete numbers (trips, months, rough percentages). Do not use bullet points or a heading — just prose.</Ask>
+
+Money and market share tell the same story from two more angles — who carries
+the trips, and who collects the fares:
 
 <Grid cols=2>
 <LineChart data={monthly_by_service} x="month" y="share_pct" series="service" title="Market share, % of trips" />
 <LineChart data={monthly_by_service} x="month" y="revenue" series="service" stacked title="Rider spend per month" format="currency" decimals=0 />
 </Grid>
 
+<Ask data={monthly_by_service} inline>In one short paragraph of prose (no heading, no lists), describe how the share of trips and the monthly rider spend have shifted between the yellow cab and the ride-hail apps since 2020. Name the current market-share leader and roughly what fraction of trips it carries.</Ask>
+
+Fares and tips are where the two worlds diverge most:
+
 <Grid cols=2>
 <LineChart data={monthly_by_service} x="month" y="avg_fare" series="service" title="Average base fare" format="currency" />
 <LineChart data={monthly_by_service} x="month" y="tip_pct" series="service" title="Tips, % of fare (card / in-app)" />
 </Grid>
 
-*Apples-to-oranges note: cab "base fare" is the meter fare; Uber/Lyft is the base
-passenger fare before fees. Cab tips are only recorded on card payments;
+<Ask data={monthly_by_service} inline>Write one short paragraph (prose only, no heading) on the tipping gap between taxis and ride-hail apps in this data. Note that cab tips are recorded only on card payments while Uber/Lyft tips are always in-app, so the comparison is imperfect — but the gap is still striking. Give the rough tip percentages for each.</Ask>
+
+*A note on the comparison: cab "base fare" is the meter fare; Uber/Lyft is the
+base passenger fare before fees. Cab tips are only recorded on card payments;
 Uber/Lyft tips are always in-app — that's the honest reason the gap looks so brutal.*
 
 ## Under the microscope: the newest month
@@ -56,19 +65,25 @@ each one a row in the raw files queried below.
 <LineChart data={hourly_by_service} x="hour" y="trips" series="service" title="Trips by hour of day" />
 </Grid>
 
+<Ask data={share_donut,hourly_by_service} inline>Write one paragraph of prose (no heading, no lists) about the newest month: which service carried the most trips and roughly its share, and what the by-hour curve says about when New Yorkers actually ride — the morning and evening peaks and the late-night pattern.</Ask>
+
 <LineChart data={daily_by_service} x="day" y="trips" series="service" title="Every single day" />
 
 <HeatmapChart data={dow_hour_heatmap} x="hour" y="day" value="trips" title="When New York moves — weekday × hour" explain />
+
+<Ask data={dow_hour_heatmap} inline>In one short paragraph of prose, describe the busiest weekday-and-hour combinations in this heatmap — the commuter peaks versus the Friday and Saturday late-night surge — as if narrating the rhythm of the city's week. No heading, no lists.</Ask>
 
 <Grid cols=2>
 <BarChart data={top_zones} x="zone" y="trips" horizontal title="Busiest pickup zones" />
 <SankeyChart data={borough_flows} source="source" target="target" value="trips" title="Borough → borough flows" />
 </Grid>
 
-<Ask data={hourly_by_service,share_donut,top_zones}
-     ask="Summarize this month in NYC ride data in 3 sentences: who dominated, when the city was busiest, and one detail a New Yorker would find fun." />
+<Ask data={top_zones,borough_flows} inline>Write one closing paragraph of prose (no heading, no lists) on the geography of the newest month: which pickup zones top the list (note if the airports rank high), and what the borough-to-borough flows reveal about how much of the city's traffic begins and ends inside Manhattan.</Ask>
 
 ## The receipts
+
+Every number above comes from these monthly aggregates — the raw output of the
+history query, one row per service per month:
 
 <Table data={receipts} title="Monthly stats by service"
        format="revenue=currency, avg_fare=currency" page-size=12 sort="month desc" />
@@ -80,4 +95,6 @@ each one a row in the raw files queried below.
 `queries/` that reads those files directly with DuckDB's `read_parquet()` — no
 tables to define, no ETL. [Dashdown](https://pypi.org/project/dashdown-md/)'s
 `dashdown build` executes the queries once and bakes the results into this
-static page; a GitHub Actions cron does that every night.
+static page; a GitHub Actions cron does that every night. The prose between the
+charts is written by an LLM at build time from each query's result — commentary
+that refreshes with the data.

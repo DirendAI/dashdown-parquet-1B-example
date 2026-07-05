@@ -46,7 +46,7 @@ jobs:
       - name: Download raw TLC Parquet (~43 GB, 2020-01 → newest month)
         run: python scripts/fetch_data.py
 
-      - name: Build static dashboard (DuckDB crunches ~1.7B rows here)
+      - name: Build static dashboard (DuckDB crunches ~1.6B rows here)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }} # optional — Ask cards degrade gracefully without it
         run: |

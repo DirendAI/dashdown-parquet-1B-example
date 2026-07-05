@@ -1,7 +1,7 @@
-# NYC Rides × DuckDB — 1.7 billion rows, zero warehouse
+# NYC Rides × DuckDB — 1.6 billion rows, zero warehouse
 
 A one-page analytics dashboard over **every NYC yellow-cab, green-cab, Uber and
-Lyft trip since January 2020 (~1.7 billion rows)**, queried straight from the
+Lyft trip since January 2020 (~1.6 billion rows)**, queried straight from the
 raw Parquet files the [NYC TLC](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
 publishes — no warehouse, no ETL, no backend.
 

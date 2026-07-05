@@ -6,6 +6,8 @@ description: >
   on GitHub Actions, served as a static page.
 ---
 
+# 1.7 billion rides. One duck. Zero servers.
+
 Every chart on this page is a SQL query running on **DuckDB** over the **raw
 Parquet files** published by the [NYC Taxi & Limousine Commission](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) —
 no warehouse, no ETL, no server. A GitHub Actions job re-downloads the data
@@ -38,6 +40,10 @@ up here on its own.
 <LineChart data={monthly_by_service} x="month" y="tip_pct" series="service" title="Tips, % of fare (card / in-app)" />
 </Grid>
 
+*Apples-to-oranges note: cab "base fare" is the meter fare; Uber/Lyft is the base
+passenger fare before fees. Cab tips are only recorded on card payments;
+Uber/Lyft tips are always in-app — that's the honest reason the gap looks so brutal.*
+
 ## Under the microscope: the newest month
 
 TLC publishes with a ~2-month lag; the freshest month on file is
@@ -64,13 +70,14 @@ each one a row in the raw files queried below.
 
 ## The receipts
 
-<Table data={monthly_by_service} title="Monthly stats by service"
+<Table data={receipts} title="Monthly stats by service"
        format="revenue=currency, avg_fare=currency" page-size=12 sort="month desc" />
 
 ---
 
 **How it's built** — the raw TLC Parquet files are downloaded as-is
-(`scripts/fetch_data.py`), a [Dashdown](https://pypi.org/project/dashdown-md/)
-`parquet` source points DuckDB at them, and every chart above is a plain SQL
-query in `queries/`. `dashdown build` executes the queries once and bakes the
-results into this static page; a GitHub Actions cron does that every night.
+(`scripts/fetch_data.py`), and every chart above is a plain SQL query in
+`queries/` that reads those files directly with DuckDB's `read_parquet()` — no
+tables to define, no ETL. [Dashdown](https://pypi.org/project/dashdown-md/)'s
+`dashdown build` executes the queries once and bakes the results into this
+static page; a GitHub Actions cron does that every night.

@@ -5,7 +5,7 @@ Lyft trip since January 2020 (~1.7 billion rows)**, queried straight from the
 raw Parquet files the [NYC TLC](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
 publishes — no warehouse, no ETL, no backend.
 
-- **Engine:** DuckDB, via [Dashdown](https://pypi.org/project/dashdown-md/)'s `parquet` source
+- **Engine:** DuckDB (in-memory), via [Dashdown](https://pypi.org/project/dashdown-md/) — every query reads the raw Parquet directly with `read_parquet()`
 - **Data:** raw TLC Parquet, downloaded as published (`scripts/fetch_data.py`) — never transformed
 - **Queries:** plain SQL files in [`queries/`](queries/) — the whole "pipeline" is `SELECT` statements
 - **Serving:** `dashdown build` bakes a static site; GitHub Actions rebuilds it **every night**,

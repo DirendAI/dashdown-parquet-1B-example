@@ -23,6 +23,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import ssl
 import sys
@@ -49,7 +50,12 @@ ZONES_URL = "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv"
 HEADERS = {"User-Agent": "dashdown-duckdb-example/1.0"}
 DATASETS = ["yellow", "green", "fhvhv"]
 DEFAULT_SINCE = "2020-01"  # ~1.7B rows across the three datasets from here
-WORKERS = 4
+
+# CloudFront rate-limits bursts with 403s — and from a datacenter runner,
+# parallel workers trip it fast (and keep it tripped, since the survivors
+# hammer on while one backs off). One patient stream still moves ~43 GB in
+# ~10-15 min on a GitHub runner. Override locally with FETCH_WORKERS=4.
+WORKERS = int(os.environ.get("FETCH_WORKERS", "1"))
 
 
 def month_url(dataset: str, month: str) -> str:
@@ -100,7 +106,7 @@ def find_latest_month(dataset: str, max_back: int = 8) -> str:
     sys.exit(f"no published month found for {dataset} — CloudFront unreachable or rate-limited")
 
 
-def download(url: str, dest: Path, retries: int = 6) -> None:
+def download(url: str, dest: Path, retries: int = 8) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(".part")
     for attempt in range(retries):
@@ -115,7 +121,8 @@ def download(url: str, dest: Path, retries: int = 6) -> None:
             tmp.unlink(missing_ok=True)
             if attempt == retries - 1:
                 raise
-            wait = 15 * (attempt + 1)
+            # a tripped CloudFront limiter can hold a 403 for minutes — wait it out
+            wait = 30 * (attempt + 1)
             print(f"  {dest.name}: retry in {wait}s ({e})", flush=True)
             time.sleep(wait)
 
@@ -153,6 +160,7 @@ def main() -> None:
         done += 1
         if done % 10 == 0:
             print(f"  {done}/{len(jobs)} files", flush=True)
+        time.sleep(0.25)  # keep the request rate polite
 
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
         list(pool.map(fetch, jobs))  # list() re-raises worker exceptions

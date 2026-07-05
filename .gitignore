@@ -1,0 +1,20 @@
+# Dashdown build artifacts
+.dist/
+.pdf/
+.shots/
+dist/
+
+# Blog draft — kept local, not pushed.
+blog.md
+
+# Raw TLC Parquet — downloaded by scripts/fetch_data.py, never committed.
+data/trips/
+data/latest/
+data/history/
+*.part
+
+__pycache__/
+.DS_Store
+
+# local harness state
+.claude/scheduled_tasks.lock

@@ -1,0 +1,19 @@
+title: NYC Rides × DuckDB
+agents: [claude]   # coding-agent guides to keep in sync via `dashdown skill`
+
+branding:
+  # Series colors, validated for CVD + contrast in light & dark mode.
+  # Order matches series order in the queries: Yellow cab (amber), Uber (blue),
+  # Lyft (pink), Green cab (green), then spares.
+  palette: ["#d97706", "#4f6ef7", "#e8506e", "#2fa87c", "#8b6ff0", "#0e8ba6"]
+
+# AI commentary (<Ask />). Optional: without ANTHROPIC_API_KEY the site still
+# serves and builds — the Ask cards degrade to a muted note.
+llm:
+  provider: mistral
+  api_key: ${MISTRAL_API_KEY}
+  model: mistral-small-2603
+
+format:
+  locale: en-US
+  currency: USD

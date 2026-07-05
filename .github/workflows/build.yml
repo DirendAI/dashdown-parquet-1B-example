@@ -1,0 +1,68 @@
+name: Build & deploy dashboard
+
+on:
+  schedule:
+    - cron: "17 5 * * *" # every night, 05:17 UTC — picks up new TLC months automatically
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # The raw Parquet is ~43 GB; the stock runner has ~14 GB free, so trade
+      # the preinstalled toolchains we don't use for disk space.
+      - name: Maximize disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 2048
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dashdown
+        run: pip install 'dashdown-md[mistral]'
+
+      - name: Download raw TLC Parquet (~43 GB, 2020-01 → newest month)
+        run: python scripts/fetch_data.py
+
+      - name: Build static dashboard (DuckDB crunches ~1.7B rows here)
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }} # optional — Ask cards degrade gracefully without it
+        run: |
+          df -h /
+          time dashdown build . --out dist
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

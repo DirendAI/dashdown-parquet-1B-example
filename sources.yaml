@@ -1,0 +1,15 @@
+# One DuckDB-backed Parquet source powers the whole dashboard — raw TLC files,
+# no pre-processing (scripts/fetch_data.py only downloads them):
+#
+#   yellow / green / fhvhv — the newest month's raw trip files, stable names
+#   zones                  — TLC taxi-zone lookup (id -> zone, borough)
+#
+# The full history in data/trips/ is queried directly with
+# read_parquet('data/trips/…*.parquet') in queries/monthly_by_service.sql etc.
+taxi:
+  type: parquet
+  files:
+    zones: data/history/taxi_zones.parquet
+    yellow: data/latest/yellow.parquet
+    green: data/latest/green.parquet
+    fhvhv: data/latest/fhvhv.parquet

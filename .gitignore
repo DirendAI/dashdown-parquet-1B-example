@@ -18,3 +18,6 @@ __pycache__/
 
 # local harness state
 .claude/scheduled_tasks.lock
+
+# Blog screenshots (for Medium upload, local only)
+blog-assets/

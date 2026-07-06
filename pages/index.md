@@ -28,7 +28,7 @@ trips, split across the yellow cab, the green cab, Uber and Lyft.
 
 <LineChart data={monthly_by_service} x="month" y="trips" series="service" stacked title="Monthly trips by service" />
 
-<Ask data={monthly_by_service} inline>Write one flowing paragraph, in the voice of a data journalist, telling the story this chart shows: the COVID-19 collapse in early 2020, the slow recovery, and how Uber, Lyft and the yellow cab ended up splitting the market. Cite a few concrete numbers (trips, months, rough percentages). Do not use bullet points or a heading — just prose.</Ask>
+<Ask data={monthly_by_service} inline replay="always">Write one flowing paragraph, in the voice of a data journalist, telling the story this chart shows: the COVID-19 collapse in early 2020, the slow recovery, and how Uber, Lyft and the yellow cab ended up splitting the market. Cite a few concrete numbers (trips, months, rough percentages). Do not use bullet points or a heading — just prose.</Ask>
 
 Money and market share tell the same story from two more angles — who carries
 the trips, and who collects the fares:
@@ -38,7 +38,7 @@ the trips, and who collects the fares:
 <LineChart data={monthly_by_service} x="month" y="revenue" series="service" stacked title="Rider spend per month" format="currency" decimals=0 />
 </Grid>
 
-<Ask data={monthly_by_service} inline>In one short paragraph of prose (no heading, no lists), describe how the share of trips and the monthly rider spend have shifted between the yellow cab and the ride-hail apps since 2020. Name the current market-share leader and roughly what fraction of trips it carries.</Ask>
+<Ask data={monthly_by_service} inline replay="always">In one short paragraph of prose (no heading, no lists), describe how the share of trips and the monthly rider spend have shifted between the yellow cab and the ride-hail apps since 2020. Name the current market-share leader and roughly what fraction of trips it carries.</Ask>
 
 Fares and tips are where the two worlds diverge most:
 
@@ -47,7 +47,7 @@ Fares and tips are where the two worlds diverge most:
 <LineChart data={monthly_by_service} x="month" y="tip_pct" series="service" title="Tips, % of fare (card / in-app)" />
 </Grid>
 
-<Ask data={monthly_by_service} inline>Write one short paragraph (prose only, no heading) on the tipping gap between taxis and ride-hail apps in this data. Note that cab tips are recorded only on card payments while Uber/Lyft tips are always in-app, so the comparison is imperfect — but the gap is still striking. Give the rough tip percentages for each.</Ask>
+<Ask data={monthly_by_service} inline replay="always">Write one short paragraph (prose only, no heading) on the tipping gap between taxis and ride-hail apps in this data. Note that cab tips are recorded only on card payments while Uber/Lyft tips are always in-app, so the comparison is imperfect — but the gap is still striking. Give the rough tip percentages for each.</Ask>
 
 *A note on the comparison: cab "base fare" is the meter fare; Uber/Lyft is the
 base passenger fare before fees. Cab tips are only recorded on card payments;
@@ -65,20 +65,20 @@ each one a row in the raw files queried below.
 <LineChart data={hourly_by_service} x="hour" y="trips" series="service" title="Trips by hour of day" />
 </Grid>
 
-<Ask data={share_donut,hourly_by_service} inline>Write one paragraph of prose (no heading, no lists) about the newest month: which service carried the most trips and roughly its share, and what the by-hour curve says about when New Yorkers actually ride — the morning and evening peaks and the late-night pattern.</Ask>
+<Ask data={share_donut,hourly_by_service} inline replay="always">Write one paragraph of prose (no heading, no lists) about the newest month: which service carried the most trips and roughly its share, and what the by-hour curve says about when New Yorkers actually ride — the morning and evening peaks and the late-night pattern.</Ask>
 
 <LineChart data={daily_by_service} x="day" y="trips" series="service" title="Every single day" />
 
 <HeatmapChart data={dow_hour_heatmap} x="hour" y="day" value="trips" title="When New York moves — weekday × hour" explain />
 
-<Ask data={dow_hour_heatmap} inline>In one short paragraph of prose, describe the busiest weekday-and-hour combinations in this heatmap — the commuter peaks versus the Friday and Saturday late-night surge — as if narrating the rhythm of the city's week. No heading, no lists.</Ask>
+<Ask data={dow_hour_heatmap} inline replay="always">In one short paragraph of prose, describe the busiest weekday-and-hour combinations in this heatmap — the commuter peaks versus the Friday and Saturday late-night surge — as if narrating the rhythm of the city's week. No heading, no lists.</Ask>
 
 <Grid cols=2>
 <BarChart data={top_zones} x="zone" y="trips" horizontal title="Busiest pickup zones" />
 <SankeyChart data={borough_flows} source="source" target="target" value="trips" title="Borough → borough flows" />
 </Grid>
 
-<Ask data={top_zones,borough_flows} inline>Write one closing paragraph of prose (no heading, no lists) on the geography of the newest month: which pickup zones top the list (note if the airports rank high), and what the borough-to-borough flows reveal about how much of the city's traffic begins and ends inside Manhattan.</Ask>
+<Ask data={top_zones,borough_flows} inline replay="always">Write one closing paragraph of prose (no heading, no lists) on the geography of the newest month: which pickup zones top the list (note if the airports rank high), and what the borough-to-borough flows reveal about how much of the city's traffic begins and ends inside Manhattan.</Ask>
 
 ## The receipts
 
@@ -86,7 +86,9 @@ Every number above comes from these monthly aggregates — the raw output of the
 history query, one row per service per month:
 
 <Table data={receipts} title="Monthly stats by service"
-       format="revenue=currency, avg_fare=currency" page-size=12 sort="month desc" />
+       format="revenue=currency, avg_fare=currency"
+       heatmap="trips,revenue,avg_fare,avg_miles,avg_minutes,tip_pct"
+       page-size=12 sort="month desc" />
 
 ---
 

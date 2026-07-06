@@ -140,12 +140,25 @@ def fetch_zones() -> None:
     print(f"wrote {out.relative_to(ROOT)}")
 
 
+def latest_marker(latest: dict[str, str]) -> str:
+    """The canonical newest-month fingerprint, e.g. 'yellow=2026-05\\n…'.
+    Written to data/latest/LATEST.txt on download and published into the build,
+    so CI can compare 'what's live' against 'what TLC has now' with a string ==."""
+    return "".join(f"{d}={m}\n" for d, m in latest.items())
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default=DEFAULT_SINCE, help="first month, YYYY-MM")
+    ap.add_argument("--print-latest", action="store_true",
+                    help="print the newest published month per dataset and exit "
+                         "(HEAD probes only, no download) — used by the CI change check")
     args = ap.parse_args()
 
     latest = {d: find_latest_month(d) for d in DATASETS}
+    if args.print_latest:
+        print(latest_marker(latest), end="")
+        return
     print("newest published month:", ", ".join(f"{d}={m}" for d, m in latest.items()))
 
     jobs = [(d, m) for d in DATASETS for m in month_seq(args.since, latest[d])
@@ -173,7 +186,7 @@ def main() -> None:
     latest_dir.mkdir(parents=True, exist_ok=True)
     for d, m in latest.items():
         shutil.copyfile(TRIPS / f"{d}_tripdata_{m}.parquet", latest_dir / f"{d}.parquet")
-    (latest_dir / "LATEST.txt").write_text("".join(f"{d}={m}\n" for d, m in latest.items()))
+    (latest_dir / "LATEST.txt").write_text(latest_marker(latest))
     print("stable copies:", ", ".join(f"{d}.parquet={m}" for d, m in latest.items()))
 
     fetch_zones()

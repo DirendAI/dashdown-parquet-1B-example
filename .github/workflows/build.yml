@@ -2,10 +2,15 @@ name: Build & deploy dashboard
 
 on:
   schedule:
-    - cron: "17 5 * * *" # every night, 05:17 UTC — picks up new TLC months automatically
+    - cron: "17 5 * * *" # nightly poll — the detect job below skips the build if TLC has no new month
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Force a rebuild even if the TLC data has not changed"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,10 +25,53 @@ env:
   PYTHONUNBUFFERED: "1"
 
 jobs:
+  # Cheap gate (HEAD probes only, no 43 GB download): build only when TLC has
+  # published a newer month than what's currently live — or when forced / pushed.
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.decide.outputs.should_build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Decide whether to build
+        id: decide
+        env:
+          FORCE: ${{ github.event.inputs.force }}
+          EVENT: ${{ github.event_name }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          # A code push, or a manual run with "force", always rebuilds.
+          if [ "$EVENT" = "push" ] || [ "$FORCE" = "true" ]; then
+            echo "Building unconditionally (event=$EVENT force=${FORCE:-false})."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Otherwise (scheduled / manual-no-force): build only if the newest
+          # published month differs from what the live site was built against.
+          available=$(python scripts/fetch_data.py --print-latest)
+          url="https://$(echo "$OWNER" | tr '[:upper:]' '[:lower:]').github.io/${REPO}/LATEST.txt"
+          deployed=$(curl -fsSL "$url" || true)   # empty on first run / 404 → treated as changed
+          echo "newest available: [$(echo "$available" | tr '\n' ' ')]"
+          echo "currently live:   [$(echo "$deployed" | tr '\n' ' ')]"
+          if [ "$available" != "$deployed" ]; then
+            echo "TLC data changed → building."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No new TLC data → skipping build (live site stays as-is)."
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: detect
+    if: needs.detect.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:
-      # The raw Parquet is ~43 GB; the stock runner has ~14 GB free, so trade
+      # The raw Parquet is ~38 GB; the stock runner has ~14 GB free, so trade
       # the preinstalled toolchains we don't use for disk space.
       - name: Maximize disk space
         uses: easimon/maximize-build-space@v10
@@ -43,7 +91,7 @@ jobs:
       - name: Install Dashdown
         run: pip install 'dashdown-md[mistral]'
 
-      - name: Download raw TLC Parquet (~43 GB, 2020-01 → newest month)
+      - name: Download raw TLC Parquet (~38 GB, 2020-01 → newest month)
         run: python scripts/fetch_data.py
 
       - name: Build static dashboard (DuckDB crunches ~1.6B rows here)
@@ -52,6 +100,18 @@ jobs:
         run: |
           df -h /
           time dashdown build . --out dist
+          # Publish the newest-month fingerprint so the next run's detect job
+          # can tell whether the live site is already current.
+          cp data/latest/LATEST.txt dist/LATEST.txt
+
+      - name: Inject PostHog analytics
+        # No-op unless the POSTHOG_KEY secret is set. The project key is
+        # public/write-only and ships in the page source; storing it as a secret
+        # still works for same-repo push/schedule/dispatch runs.
+        env:
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
+        run: python .github/scripts/inject_posthog.py dist
 
       - uses: actions/upload-pages-artifact@v3
         with:

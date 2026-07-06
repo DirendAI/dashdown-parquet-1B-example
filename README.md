@@ -30,6 +30,14 @@ dashdown serve .        # live dev server on http://127.0.0.1:8000
 3. (Optional) add a `MISTRAL_API_KEY` repo secret for the AI commentary —
    without it the site still builds, the Ask cards just show a muted note.
 
-The [workflow](.github/workflows/build.yml) runs nightly (and on every push to
-`main`): it downloads the raw Parquet (~43 GB), lets DuckDB crunch it during
-`dashdown build`, and deploys the static result to Pages.
+The [workflow](.github/workflows/build.yml) downloads the raw Parquet (~38 GB),
+lets DuckDB crunch it during `dashdown build`, and deploys the static result to
+Pages. It runs:
+
+- **On every push to `main`** — always rebuilds (code changed).
+- **Nightly (05:17 UTC)** — a cheap `detect` job first HEAD-probes TLC for the
+  newest published month and compares it to what the live site was built against
+  (published as `LATEST.txt`). It only runs the 30-minute build **if TLC has a
+  new month** — otherwise the run finishes in seconds and the live site stays as-is.
+- **Manually** — *Actions → Build & deploy dashboard → Run workflow*. Leave it to
+  do the same change check, or tick **force** to rebuild even when nothing changed.

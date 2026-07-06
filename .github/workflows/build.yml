@@ -76,7 +76,10 @@ jobs:
       - name: Maximize disk space
         uses: easimon/maximize-build-space@v10
         with:
-          root-reserve-mb: 2048
+          # Leave ~6 GB free on the ROOT filesystem — pip installs there, and
+          # 2 GB was too tight (a nightly build died with ENOSPC mid-install).
+          # The build volume still gets 75+ GB for the 38 GB Parquet download.
+          root-reserve-mb: 6144
           remove-dotnet: "true"
           remove-android: "true"
           remove-haskell: "true"
@@ -89,7 +92,8 @@ jobs:
           python-version: "3.12"
 
       - name: Install Dashdown
-        run: pip install 'dashdown-md[mistral]'
+        # --no-cache-dir keeps pip from caching wheels on the tight root fs.
+        run: pip install --no-cache-dir 'dashdown-md[mistral]'
 
       - name: Download raw TLC Parquet (~38 GB, 2020-01 → newest month)
         run: python scripts/fetch_data.py

@@ -12,7 +12,7 @@ branding:
 llm:
   provider: mistral
   api_key: ${MISTRAL_API_KEY}
-  model: mistral-small-2603
+  model: mistral-medium-latest
 
 format:
   locale: en-US

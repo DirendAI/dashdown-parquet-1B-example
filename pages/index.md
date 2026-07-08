@@ -1,9 +1,10 @@
 ---
-title: 1.6 Billion Rides
+title: NYC Taxi & Ride-Hail Data — 1.6 Billion Rides
 description: >
-  Every NYC yellow-cab, green-cab, Uber and Lyft trip since January 2020 —
-  queried straight from the raw TLC Parquet files by DuckDB, rebuilt nightly
-  on GitHub Actions, served as a static page.
+  Interactive dashboard of every NYC yellow-cab, green-cab, Uber and Lyft trip
+  since January 2020 — 1.6 billion rows of NYC TLC trip record data queried
+  straight from the raw Parquet files by DuckDB, rebuilt nightly on GitHub
+  Actions, served as a static page.
 ---
 
 # 1.6 billion rides. One duck. Zero servers.

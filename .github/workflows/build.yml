@@ -117,6 +117,17 @@ jobs:
           POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
         run: python .github/scripts/inject_posthog.py dist
 
+      - name: Inject SEO meta tags, sitemap.xml, robots.txt
+        # Dashdown emits no meta description / OG tags / sitemap, so links
+        # shared on Slack, X or HN unfurl bare and crawlers get no summary.
+        # Same post-build pattern as the PostHog step above.
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          export SITE_URL="https://$(echo "$OWNER" | tr '[:upper:]' '[:lower:]').github.io/${REPO}"
+          python .github/scripts/inject_seo.py dist
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

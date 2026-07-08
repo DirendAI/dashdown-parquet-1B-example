@@ -10,6 +10,10 @@ publishes — no warehouse, no ETL, no backend.
 - **Queries:** plain SQL files in [`queries/`](queries/) — the whole "pipeline" is `SELECT` statements
 - **Serving:** `dashdown build` bakes a static site; GitHub Actions rebuilds it **every night**,
   so new TLC months appear automatically (they publish with a ~2-month lag)
+- **SEO:** Dashdown emits no meta tags beyond `<title>`, so a post-build step
+  (`.github/scripts/inject_seo.py`) injects the meta description, Open Graph /
+  Twitter Card tags (with `assets/social-card.png` for link previews), JSON-LD
+  structured data, `sitemap.xml` and `robots.txt`
 - **AI:** `<Ask />` cards let Claude narrate the charts at build time (optional)
 
 ## Run it locally

@@ -1,0 +1,40 @@
+name: Capture dashboard screenshots
+
+# Screenshots the live GitHub Pages dashboard and commits the PNGs back to
+# this branch. The paths filter stops the screenshot commit (which only
+# touches screenshots/) from re-triggering the workflow.
+on:
+  push:
+    branches: [claude/airtable-form-analysis-9mio0z]
+    paths:
+      - ".github/workflows/screenshots.yml"
+      - "scripts/capture_screenshots.mjs"
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Capture screenshots of the live dashboard
+        run: node scripts/capture_screenshots.mjs "https://direndai.github.io/dashdown-parquet-1B-example/" screenshots
+
+      - name: Commit screenshots to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f screenshots/
+          git commit -m "Add live-dashboard screenshots for gallery submission"
+          git push

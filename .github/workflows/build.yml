@@ -107,6 +107,9 @@ jobs:
           # Publish the newest-month fingerprint so the next run's detect job
           # can tell whether the live site is already current.
           cp data/latest/LATEST.txt dist/LATEST.txt
+          # Google Search Console ownership proof — must be served at the site
+          # root, and Pages serves dist/, not the repo root.
+          cp google39d4447bbfa3896a.html dist/
 
       - name: Inject PostHog analytics
         # No-op unless the POSTHOG_KEY secret is set. The project key is

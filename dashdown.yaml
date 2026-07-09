@@ -17,3 +17,10 @@ llm:
 format:
   locale: en-US
   currency: USD
+
+# Single-page dashboard — no top app header / nav chrome needed.
+layout:
+  header: false        # hide the top app header (brand / search / theme toggle)
+  theme_toggle: true   # keep a floating light/dark toggle in its place
+  sidebar:
+    hidden: true       # never render the left nav

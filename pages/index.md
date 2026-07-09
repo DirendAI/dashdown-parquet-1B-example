@@ -7,7 +7,7 @@ description: >
   Actions, served as a static page.
 ---
 
-# 1.6 billion rides. One duck. Zero servers.
+# NYC Taxi & Ride-Hail Data — 1.6 Billion Rides
 
 Every chart on this page is a SQL query running on **DuckDB** over the **raw
 Parquet files** published by the [NYC Taxi & Limousine Commission](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) —

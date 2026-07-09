@@ -135,6 +135,24 @@ jobs:
         with:
           path: dist
 
+      # Publish the same finalized dist/ to Cloudflare Pages, alongside GitHub
+      # Pages. Needs two repo secrets: CLOUDFLARE_API_TOKEN (a token with the
+      # "Cloudflare Pages: Edit" permission) and CLOUDFLARE_ACCOUNT_ID.
+      - name: Ensure Cloudflare Pages project exists
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true # non-zero once the project already exists — expected
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create nyc-rides-duckdb --production-branch=main
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=nyc-rides-duckdb --branch=main
+
   deploy:
     needs: build
     runs-on: ubuntu-latest

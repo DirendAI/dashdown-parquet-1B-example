@@ -16,11 +16,17 @@ for the shared attributes, then the per-type page:
 
 - [LineChart](/components/charts/line-chart) · [BarChart](/components/charts/bar-chart) · [ComboChart](/components/charts/combo-chart) · [PieChart](/components/charts/pie-chart) · [ScatterChart](/components/charts/scatter-chart)
 - [FunnelChart](/components/charts/funnel-chart) · [TreemapChart](/components/charts/treemap-chart) · [CalendarHeatmap](/components/charts/calendar-heatmap)
-- [BoxPlot](/components/charts/box-plot) · [Violin](/components/charts/violin) · [MapChart](/components/charts/map-chart)
+- [BoxPlot](/components/charts/box-plot) · [Violin](/components/charts/violin) · [MapChart](/components/maps#mapchart)
 - [RadarChart](/components/charts/radar-chart) · [GaugeChart](/components/charts/gauge-chart) · [HeatmapChart](/components/charts/heatmap-chart)
 - [SankeyChart](/components/charts/sankey-chart) · [CandlestickChart](/components/charts/candlestick-chart) · [ThemeRiver](/components/charts/theme-river)
 - [GraphChart](/components/charts/graph-chart) · [SunburstChart](/components/charts/sunburst-chart) · [TreeChart](/components/charts/tree-chart) · [ParallelChart](/components/charts/parallel-chart)
 - [Chart auto](/components/charts/auto-chart)
+
+## Maps
+
+- [Maps](/components/maps) — five SVG geo components joining on ISO country
+  codes: ChoroplethTime (animated), ChoroplethFacets (small multiples),
+  BivariateMap, BubbleMap, DotDensityMap. All offline and static-export safe.
 
 ## Data display
 
@@ -65,10 +71,11 @@ example; the common attributes are here.
 | `format`, `currency`, `decimals`, `locale`, `date_format` | Value-axis & tooltip number/date formatting — see [Formatting](/formatting). |
 | `empty_message`| Message shown (centered) when the query returns no rows, for every chart type. Default `"No data available"`. |
 | `explain`      | A hover-revealed ✨ button that generates on-demand AI commentary below the plot (needs an `llm:` block); `explain="…"` asks your own question, `cache_ttl=` tunes the answer cache — see [Ask → Explain any chart](/ai/ask#explain-any-chart). |
+| `annotations`  | `false` keeps an explained chart **commentary-only** — the AI never proposes (or draws) [marks on the plot](/ai/ask#annotations-on-the-chart). Default `true`. |
 
 A few types take their own attributes on top of the shared set — distribution
 charts ([BoxPlot](/components/charts/box-plot),
-[Violin](/components/charts/violin)), [MapChart](/components/charts/map-chart),
+[Violin](/components/charts/violin)), [MapChart](/components/maps#mapchart),
 [HeatmapChart](/components/charts/heatmap-chart) (a `value` column),
 [SankeyChart](/components/charts/sankey-chart) /
 [GraphChart](/components/charts/graph-chart) (`source`/`target`/`value`),
@@ -102,13 +109,13 @@ your data:
 ```
 
 <Grid cols=2>
-  <BarChart data={by_channel} x="month" y="downloads" series="channel" title="series= (2nd dimension)" />
-  <BarChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="multi-metric y=" />
+  <BarChart data={by_channel} x="month" y="downloads" series="channel" title="series= (2nd dimension)" explain />
+  <BarChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="multi-metric y=" explain />
 </Grid>
 
 Add `stacked` to stack the groups on a shared total:
 
-<BarChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Stacked by channel" />
+<BarChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Stacked by channel" explain />
 
 Both give a legend and a colour per series; they're **mutually exclusive** (if you
 set both, `series` wins). On a [PieChart](/components/charts/pie-chart), `series=`
@@ -130,7 +137,7 @@ legend. The same `series=` / multi-metric grammar works on
 | [TreemapChart](/components/charts/treemap-chart) | Nested proportions |
 | [CalendarHeatmap](/components/charts/calendar-heatmap) | Daily values over a year |
 | [BoxPlot](/components/charts/box-plot) / [Violin](/components/charts/violin) | Distributions |
-| [MapChart](/components/charts/map-chart) | Values by geography |
+| [MapChart](/components/maps#mapchart) | Values by geography |
 | [RadarChart](/components/charts/radar-chart) | Comparing many metrics at once |
 | [GaugeChart](/components/charts/gauge-chart) | A single KPI against a target |
 | [HeatmapChart](/components/charts/heatmap-chart) | Intensity across a category grid |
@@ -155,19 +162,19 @@ Trends over a continuous or time axis. Add `series` to draw one line per group.
            title="Downloads by channel" format="number" />
 ```
 
-<LineChart data={by_channel} x="month" y="downloads" series="channel" title="Downloads by channel" />
+<LineChart data={by_channel} x="month" y="downloads" series="channel" title="Downloads by channel" explain />
 
 Without `series` you get a single line:
 
-<LineChart data={downloads_by_month} x="month" y="downloads" title="Total downloads" />
+<LineChart data={downloads_by_month} x="month" y="downloads" title="Total downloads" explain />
 
 Add `stacked` (with a `series`) for a stacked-area chart:
 
-<LineChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Downloads by channel (stacked)" />
+<LineChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Downloads by channel (stacked)" explain />
 
 Or pass a comma-separated `y` for one line per metric column (no `series` needed):
 
-<LineChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="Downloads per channel (multi-metric)" />
+<LineChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="Downloads per channel (multi-metric)" explain />
 
 ## From the semantic layer
 
@@ -212,15 +219,15 @@ the Y axis), or `series` for grouped bars — and `stacked` to stack those group
 <BarChart data={channel_totals} x="channel" y="downloads" title="By channel" />
 ```
 
-<BarChart data={channel_totals} x="channel" y="downloads" title="Total by channel" />
+<BarChart data={channel_totals} x="channel" y="downloads" title="Total by channel" explain />
 
 Horizontal:
 
-<BarChart data={channel_totals} x="channel" y="downloads" horizontal title="By channel (horizontal)" />
+<BarChart data={channel_totals} x="channel" y="downloads" horizontal title="By channel (horizontal)" explain />
 
 Grouped by series and **stacked**:
 
-<BarChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Downloads by month (stacked)" />
+<BarChart data={by_channel} x="month" y="downloads" series="channel" stacked title="Downloads by month (stacked)" explain />
 
 ## Multiple metrics
 
@@ -233,7 +240,7 @@ No `series=` grouping needed:
           title="Downloads by channel" />
 ```
 
-<BarChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="Downloads by channel" />
+<BarChart data={downloads_by_channel_wide} x="month" y="pip,docker,source" title="Downloads by channel" explain />
 
 This is the complement of `series=`: use **`series=`** to split *one* value column
 by a category, or **a comma-separated `y`** to plot *several* value columns. The
@@ -289,7 +296,7 @@ lists) plus `right_axis=` (the subset plotted against the right axis).
             title="Visits (bars) vs signups (line)" />
 ```
 
-<ComboChart data={traffic_combo} x="date" bars="visits" lines="signups" right_axis="signups" title="Visits (bars) vs signups (line)" />
+<ComboChart data={traffic_combo} x="date" bars="visits" lines="signups" right_axis="signups" title="Visits (bars) vs signups (line)" explain />
 
 `visits` (in the hundreds) draws as bars on the **left** axis; `signups` (in the
 tens) draws as a line on its **own right axis** via `right_axis="signups"`, so the
@@ -306,7 +313,7 @@ its own bar or line series, sharing the legend:
             bars="pip,docker" lines="source" right_axis="source" />
 ```
 
-<ComboChart data={downloads_by_channel_wide} x="month" bars="pip,docker" lines="source" right_axis="source" title="pip + docker bars, source line" />
+<ComboChart data={downloads_by_channel_wide} x="month" bars="pip,docker" lines="source" right_axis="source" title="pip + docker bars, source line" explain />
 
 ## Per-series colours
 
@@ -320,7 +327,7 @@ amber line":
             bar_color="#6366f1" line_color="#f59e0b" />
 ```
 
-<ComboChart data={traffic_combo} x="date" bars="visits" lines="signups" right_axis="signups" bar_color="#6366f1" line_color="#f59e0b" title="Indigo bars, amber line" />
+<ComboChart data={traffic_combo} x="date" bars="visits" lines="signups" right_axis="signups" bar_color="#6366f1" line_color="#f59e0b" title="Indigo bars, amber line" explain />
 
 ## From the semantic layer
 
@@ -372,11 +379,11 @@ a **donut** with a center total; pass `donut=false` for a solid pie.
 <PieChart data={channel_totals} x="channel" y="downloads" title="Share by channel" />
 ```
 
-<PieChart data={channel_totals} x="channel" y="downloads" title="Share by channel" />
+<PieChart data={channel_totals} x="channel" y="downloads" title="Share by channel" explain />
 
 Solid pie:
 
-<PieChart data={channel_totals} x="channel" y="downloads" donut=false title="Solid pie" />
+<PieChart data={channel_totals} x="channel" y="downloads" donut=false title="Solid pie" explain />
 
 ## Faceted (small multiples)
 
@@ -389,7 +396,7 @@ across a dimension. Here the channel mix, one pie per month:
           title="Channel mix by month" />
 ```
 
-<PieChart data={by_channel_recent} x="channel" y="downloads" series="month" title="Channel mix by month" height=340 />
+<PieChart data={by_channel_recent} x="channel" y="downloads" series="month" title="Channel mix by month" height=340 explain />
 
 The pies are sized to fill the card from its live dimensions and re-fit on resize.
 (Faceted pies are always solid — the `donut` center total applies to a single pie
@@ -436,11 +443,11 @@ Correlation between two numeric columns — one point per row.
 <ScatterChart data={daily_metrics} x="visits" y="signups" title="Visits vs signups" />
 ```
 
-<ScatterChart data={daily_metrics} x="visits" y="signups" title="Visits vs signups" />
+<ScatterChart data={daily_metrics} x="visits" y="signups" title="Visits vs signups" explain />
 
 Add `series=` to colour points by a category — here device specs grouped by tier:
 
-<ScatterChart data={device_specs} x="price" y="speed" series="tier" title="Price vs speed, by tier" />
+<ScatterChart data={device_specs} x="price" y="speed" series="tier" title="Price vs speed, by tier" explain />
 
 ## From the semantic layer
 
@@ -482,7 +489,7 @@ Stage-by-stage values, widest at the top — useful for conversion / drop-off.
 <FunnelChart data={channel_totals} x="channel" y="downloads" title="Channels by volume" />
 ```
 
-<FunnelChart data={channel_totals} x="channel" y="downloads" title="Channels by volume" />
+<FunnelChart data={channel_totals} x="channel" y="downloads" title="Channels by volume" explain />
 
 ## From the semantic layer
 
@@ -523,7 +530,7 @@ the value.
 <TreemapChart data={channel_totals} x="channel" y="downloads" title="Share by channel" />
 ```
 
-<TreemapChart data={channel_totals} x="channel" y="downloads" title="Share by channel" />
+<TreemapChart data={channel_totals} x="channel" y="downloads" title="Share by channel" explain />
 
 ## From the semantic layer
 
@@ -564,7 +571,7 @@ it a `date` column and a `value` column.
 <CalendarHeatmap data={daily_metrics} date="date" value="visits" title="Daily visits" />
 ```
 
-<CalendarHeatmap data={daily_metrics} date="date" value="visits" title="Daily visits" />
+<CalendarHeatmap data={daily_metrics} date="date" value="visits" title="Daily visits" explain />
 
 ## From the semantic layer
 
@@ -605,11 +612,11 @@ whiskers, and outliers are computed client-side from the raw rows.
 <BoxPlot data={daily_metrics} x="weekday" y="visits" title="Visits by weekday" />
 ```
 
-<BoxPlot data={daily_metrics} x="weekday" y="visits" title="Visits by weekday" />
+<BoxPlot data={daily_metrics} x="weekday" y="visits" title="Visits by weekday" explain />
 
 A single box over every row (no `x`):
 
-<BoxPlot data={daily_metrics} y="visits" title="All daily visits" />
+<BoxPlot data={daily_metrics} y="visits" title="All daily visits" explain />
 
 :::note
 BoxPlot reads **raw rows** to compute the distribution, so it takes `data={query}`
@@ -646,11 +653,11 @@ rather than just the quartiles. `y` is the value; `x` is an optional group.
 <Violin data={daily_metrics} x="weekday" y="visits" title="Visit density by weekday" />
 ```
 
-<Violin data={daily_metrics} x="weekday" y="visits" title="Visit density by weekday" />
+<Violin data={daily_metrics} x="weekday" y="visits" title="Visit density by weekday" explain />
 
 Omit `x` for a single combined density shape:
 
-<Violin data={daily_metrics} y="visits" title="Overall visit density" />
+<Violin data={daily_metrics} y="visits" title="Overall visit density" explain />
 
 :::note
 Like [BoxPlot](/components/charts/box-plot), Violin reads **raw rows** for its
@@ -675,50 +682,6 @@ density, so it takes `data={query}` only — a [semantic metric](/semantic-layer
 Identical to [BoxPlot](/components/charts/box-plot); the rest are the shared chart attributes — see [Charts](/components/charts).
 
 
-<!-- source: docs/pages/components/charts/map-chart.md -->
-
-# MapChart
-
-A choropleth map — regions shaded by value. `location` names the region column,
-`value` the metric. The built-in `world` map ships offline; point `geojson=` at a
-custom GeoJSON (resolved from the project's `assets/`) for other maps.
-
-```markdown
-<MapChart data={downloads_by_country} location="country" value="downloads"
-          map="world" title="Downloads by country" />
-```
-
-<MapChart data={downloads_by_country} location="country" value="downloads" map="world" title="Downloads by country" />
-
-## From the semantic layer
-
-Like every chart, MapChart also takes [semantic metric refs](/semantic-layer)
-instead of `data={query}` — `by` is the region dimension (its values must match
-the GeoJSON names) and `metric` shades each region; `map`/`geojson` stay literal:
-
-```markdown
-<MapChart metric={sales.revenue} by={sales.country} map="world" />
-```
-
-## Attributes
-
-| Attribute | Purpose |
-| --------- | ------- |
-| `data` | **Required.** The query to plot (`data={query}`). |
-| `location` | **Required.** Region-name column (must match the GeoJSON; alias for `x`). |
-| `value` | **Required.** Metric that shades each region (alias for `y`). |
-| `map` | Built-in map name (default `world`). |
-| `geojson` | URL/path to a custom GeoJSON for non-world maps (resolved from `assets/`). |
-| `title` | Chart title. |
-| `color` | Single color or comma-separated palette for the scale. |
-| `height` | Pixel height (default `300`). |
-| `col-span` | Columns to span inside a `<Grid>`. |
-| `format` · `currency` · `decimals` · `locale` | Tooltip value formatting. |
-| `empty_message` | Text shown when the query returns no rows. |
-
-`location`/`value` are aliases for `x`/`y`; `map`/`geojson` are MapChart-specific. The rest are the shared chart attributes — see [Charts](/components/charts).
-
-
 <!-- source: docs/pages/components/charts/radar-chart.md -->
 
 # RadarChart
@@ -732,11 +695,11 @@ seen for that indicator.
 <RadarChart data={feature_scores} x="metric" y="score" series="product" title="Feature scores" />
 ```
 
-<RadarChart data={feature_scores} x="metric" y="score" series="product" title="Feature scores" />
+<RadarChart data={feature_scores} x="metric" y="score" series="product" title="Feature scores" explain />
 
 Omit `series` for a single polygon:
 
-<RadarChart data={dashdown_scores} x="metric" y="score" title="Dashdown scores" />
+<RadarChart data={dashdown_scores} x="metric" y="score" title="Dashdown scores" explain />
 
 ## From the semantic layer
 
@@ -778,11 +741,11 @@ on a `min`..`max` scale (defaults `0`..`100`). No `x` is needed.
 <GaugeChart data={goal_completion} y="pct" min=0 max=100 title="Monthly goal" />
 ```
 
-<GaugeChart data={goal_completion} y="pct" min=0 max=100 title="Monthly goal" />
+<GaugeChart data={goal_completion} y="pct" min=0 max=100 title="Monthly goal" explain />
 
 `color` repaints the progress arc:
 
-<GaugeChart data={goal_completion} y="pct" min=0 max=100 color="#16a34a" title="Monthly goal (custom color)" />
+<GaugeChart data={goal_completion} y="pct" min=0 max=100 color="#16a34a" title="Monthly goal (custom color)" explain />
 
 ## From the semantic layer
 
@@ -824,7 +787,7 @@ axes** and `value` is the per-cell magnitude column.
 <HeatmapChart data={by_channel} x="month" y="channel" value="downloads" title="Downloads by month & channel" />
 ```
 
-<HeatmapChart data={by_channel} x="month" y="channel" value="downloads" title="Downloads by month & channel" />
+<HeatmapChart data={by_channel} x="month" y="channel" value="downloads" title="Downloads by month & channel" explain />
 
 ## From the semantic layer
 
@@ -871,7 +834,7 @@ width). Nodes are the union of the two columns.
 <SankeyChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Lifecycle flow" />
 ```
 
-<SankeyChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Lifecycle flow" />
+<SankeyChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Lifecycle flow" explain />
 
 ## From the semantic layer
 
@@ -920,7 +883,7 @@ columns. Bullish candles (close ≥ open) render green, bearish red.
                   title="Daily price" />
 ```
 
-<CandlestickChart data={daily_prices} x="day" open="open" high="high" low="low" close="close" title="Daily price" />
+<CandlestickChart data={daily_prices} x="day" open="open" high="high" low="low" close="close" title="Daily price" explain />
 
 ## From the semantic layer
 
@@ -975,7 +938,7 @@ its value. `x` is the time column (ISO dates parse best), `y` the value, and
 <ThemeRiver data={daily_streams} x="date" y="value" series="metric" title="Activity streams" />
 ```
 
-<ThemeRiver data={daily_streams} x="date" y="value" series="metric" title="Activity streams" />
+<ThemeRiver data={daily_streams} x="date" y="value" series="metric" title="Activity streams" explain />
 
 ## From the semantic layer
 
@@ -1019,7 +982,7 @@ their total incident weight. Drag to rearrange; scroll to zoom.
 <GraphChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Stage network" />
 ```
 
-<GraphChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Stage network" />
+<GraphChart data={user_flow} source="stage_from" target="stage_to" value="users" title="Stage network" explain />
 
 ## From the semantic layer
 
@@ -1066,7 +1029,7 @@ and `label` (optional) is its display name.
 <SunburstChart data={org_tree} id="id" parent="parent" value="headcount" label="name" title="Headcount" />
 ```
 
-<SunburstChart data={org_tree} id="id" parent="parent" value="headcount" label="name" title="Headcount" />
+<SunburstChart data={org_tree} id="id" parent="parent" value="headcount" label="name" title="Headcount" explain />
 
 :::note
 SunburstChart needs an `id`/`parent` **hierarchy**, which the
@@ -1108,7 +1071,7 @@ roots are gathered under one synthetic root.
 <TreeChart data={org_tree} id="id" parent="parent" label="name" title="Org chart" />
 ```
 
-<TreeChart data={org_tree} id="id" parent="parent" label="name" title="Org chart" />
+<TreeChart data={org_tree} id="id" parent="parent" label="name" title="Org chart" explain />
 
 :::note
 Like [SunburstChart](/components/charts/sunburst-chart), TreeChart needs an
@@ -1147,7 +1110,7 @@ the lines by group.
 <ParallelChart data={device_specs} dimensions="price, speed, battery, rating" series="tier" title="Device trade-offs" />
 ```
 
-<ParallelChart data={device_specs} dimensions="price, speed, battery, rating" series="tier" title="Device trade-offs" />
+<ParallelChart data={device_specs} dimensions="price, speed, battery, rating" series="tier" title="Device trade-offs" explain />
 
 ## From the semantic layer
 
@@ -1193,7 +1156,7 @@ with the `auto` flag:
 <Chart auto data={downloads_by_month} />
 ```
 
-<Chart auto data={downloads_by_month} />
+<Chart auto data={downloads_by_month} explain />
 
 Rough heuristics: a time/category `x` with a numeric `y` → line or bar; two
 numeric columns → scatter. You can still pass explicit `x`/`y`/`series` to guide
@@ -1225,6 +1188,296 @@ shape just as it does from query columns:
 | `empty_message` | Text shown when the query returns no rows. |
 
 `auto` is unique to `<Chart>`; everything else is shared with the typed charts — see [Charts](/components/charts).
+
+
+<!-- source: docs/pages/components/maps.md -->
+
+# Maps
+
+Every map component on one page: the ECharts-based [MapChart](#mapchart)
+choropleth first — the quickest way to put values on a world map — then five
+self-drawn SVG geo maps: an animated choropleth, small-multiple choropleths, a
+bivariate choropleth, a proportional-symbol map, and a dot-density map.
+
+## MapChart
+
+An ECharts choropleth that joins by country **name** instead of ISO code —
+handy when a dataset carries names and no codes. It's a regular chart (shared
+chart attributes, canvas-rendered), not one of the SVG geo maps below, but it
+follows the same conventions: overlaid title and legend, **Ctrl/⌘ + scroll**
+to zoom (plain scrolling stays with the page), and a **Reset view** pill once
+zoomed. `location` names the region column, `value` the metric; the built-in
+`world` map ships offline, and `geojson=` takes a custom map here too.
+
+```markdown
+<MapChart data={downloads_by_country} location="country" value="downloads"
+          map="world" title="Downloads by country" explain />
+```
+
+<MapChart data={downloads_by_country} location="country" value="downloads" map="world" title="Downloads by country" explain />
+
+The `explain` attribute works here like on any chart — and the [AI
+commentary](/ai/ask#annotations-on-the-chart) can highlight regions on the
+map, each one validated against the locations the query actually returned.
+(The SVG geo maps below take `explain` too — see
+[AI commentary on geo maps](#ai-commentary-on-geo-maps).)
+
+Like every chart, MapChart also takes [semantic metric refs](/semantic-layer)
+instead of `data={query}` — `by` is the region dimension (its values must match
+the GeoJSON names) and `metric` shades each region; `map`/`geojson` stay
+literal:
+
+```markdown
+<MapChart metric={sales.revenue} by={sales.country} map="world" />
+```
+
+### MapChart attributes
+
+| Attribute | Purpose |
+| --------- | ------- |
+| `data` | **Required.** The query to plot (`data={query}`). |
+| `location` | **Required.** Region-name column (must match the GeoJSON; alias for `x`). |
+| `value` | **Required.** Metric that shades each region (alias for `y`). |
+| `map` | Built-in map name (default `world`). |
+| `geojson` | URL/path to a custom GeoJSON for non-world maps (resolved from `assets/`). |
+| `title` | Chart title. |
+| `color` | Single color or comma-separated palette for the scale. |
+| `height` | Pixel height (default `300`). |
+| `col-span` | Columns to span inside a `<Grid>`. |
+| `format` · `currency` · `decimals` · `locale` | Tooltip value formatting. |
+| `empty_message` | Text shown when the query returns no rows. |
+
+`location`/`value` are aliases for `x`/`y`; `map`/`geojson` are
+MapChart-specific. The rest are the shared chart attributes — see
+[Charts](/components/charts).
+
+## Geo maps
+
+The five SVG geo maps share one design:
+
+- **Countries join on ISO 3166-1 numeric codes** (`id=` names the code column,
+  default `iso`) against the bundled world geometry — the join key analytics
+  datasets actually carry. Values like `840`, `"840"` and `"076"` all match.
+  ([MapChart](#mapchart) instead joins by country *name*.)
+- **Self-drawn SVG, fully offline** — no mapping library, no CDN, an
+  equirectangular projection with standard parallels ±35° and antimeridian
+  handling. The frame auto-fits the loaded geometry's extent, so the world
+  shows no empty polar bands and a [custom region](#custom-regions) fills the
+  card.
+- **Static-export safe.** Every frame ships in the one query result, and the
+  year scrubber / metric toggles are the component's own controls (not page
+  filters) — so `dashdown build` exports stay fully interactive.
+- **Deterministic.** DotDensityMap seeds its dot placement per country+metric,
+  so the same data draws the identical map on every load and in exports.
+- **Chrome overlays the map.** The title (top-left), legend (bottom-left) and
+  metric toggle (bottom-right) float over the map on translucent washes, so
+  the geometry gets the whole card. Only the ChoroplethTime timeline is a
+  footer row, and ChoroplethFacets keeps a flow header/footer — a facet grid
+  has no spare corners.
+
+The demos below query a demo dataset of decade-level world indicators
+(`data/world_indicators.csv`).
+
+## Data shape
+
+One result shape feeds every map: **one row per country (and per year, for the
+time-aware maps), one numeric column per metric**. The demo dataset is already
+in that shape, so its query is just:
+
+```sql
+SELECT iso, country, year, population, gdp_per_capita, life_expectancy
+FROM world_indicators
+ORDER BY year, country
+```
+
+Getting a fact table there is a `GROUP BY` country and year with one aggregate
+per metric — plus, usually, a join to translate whatever country key your data
+carries (alpha-2 codes like `US`, names) into ISO numeric:
+
+```sql
+SELECT c.iso_numeric                        AS iso,
+       EXTRACT(year FROM o.created_at)      AS year,
+       SUM(o.amount)                        AS revenue,
+       COUNT(DISTINCT o.customer_id)        AS customers
+FROM orders o
+JOIN country_codes c ON c.alpha2 = o.country_code
+GROUP BY 1, 2
+```
+
+`<ChoroplethTime data={sales_by_country} id="iso" year="year"
+metrics="revenue|Revenue|$,customers|Customers|customers" />` then works as-is
+— and the same result drives the other maps (`year_value=` picks a snapshot;
+BivariateMap reads two of the columns as `x`/`y`).
+
+- **Sparse is fine.** A country missing from a year (or a `NULL` value) renders
+  in the no-data wash; year gaps are fine too — each distinct year is one
+  scrubber stop or facet, so decade-level data plays as five frames.
+- **Keep it aggregated.** Every frame ships in the one query result (that's
+  what keeps exports interactive), so return countries × years rows, not raw
+  events.
+- **Don't log-transform in SQL.** Use `scale="log"` instead, so tooltips and
+  legends keep the real values.
+
+## Zoom, pan & fullscreen
+
+Every map card has the charts' hover-revealed ⛶ button, opening it in a
+fullscreen modal with a **Map / Table** switcher (the table shows the same
+query result). On the map itself — inline or fullscreen — **Ctrl + scroll**
+(⌘ on macOS) or a trackpad pinch zooms around the pointer, dragging pans once
+zoomed, double-click zooms in, and a **Reset view** pill (bottom-center, where
+the zoom hint flashes) restores the full extent. Plain scrolling is
+deliberately left to the page, so a map never traps the wheel.
+(ChoroplethFacets panels stay un-zoomable small multiples — fullscreen is the
+"see them bigger" affordance there.)
+
+## AI commentary on geo maps
+
+Every geo map takes the charts' `explain` attribute (needs an
+[`llm:` block](/ai/ask#configuration)): a hover-revealed ✨ button that
+generates commentary on demand into a footer under the map. On **BubbleMap**
+and **DotDensityMap** the commentary can also [mark the map
+itself](/ai/ask#annotations-on-the-chart): a cited country gets a dashed
+**halo ring** with a leader-line label, referenced from the text by numbered
+chips (hover a chip to bold its halo). Every proposal is validated
+server-side against the join ids in the active year slice — a country the
+frame doesn't draw can't earn a halo — and a halo scoped to one metric shows
+only while that metric is toggled active. The choropleths
+(ChoroplethTime/ChoroplethFacets/BivariateMap) stay commentary-only: facets,
+animation frames, and two-metric encodings give one static mark nothing
+stable to point at. `annotations=false` keeps any map commentary-only;
+`explain="…"` and `cache_ttl=` work exactly as on charts.
+
+```markdown
+<BubbleMap data={world_indicators} id="iso" year="year" year_value="2020"
+    metrics="population|Population|people" max_radius=35
+    title="Population, 2020" explain />
+```
+
+## Shared attributes
+
+Every map takes `data={query}` plus:
+
+| Attribute | Purpose |
+| --------- | ------- |
+| `id` | Column holding the ISO 3166-1 numeric country code (default `iso`). |
+| `title` | Card title (overlaid on the map's top-left). |
+| `scheme` | Named color ramp: `blues`, `greens`, `oranges`, `purples`, `reds`, `viridis` (BivariateMap instead takes `blue-purple`, `green-blue`, `red-blue`). |
+| `color` | Base color to derive a ramp from (defaults to `branding.palette`). |
+| `scale` | Value→color mapping: `linear` (default), `log`, `quantile`. |
+| `map` / `geojson` | Basemap: the bundled `world` (default), or a custom GeoJSON URL. |
+| `id_field` | Feature property to join on in a custom GeoJSON (default `iso`). |
+| `height` | Pixel height (default `420`). |
+| `col-span` | Columns to span inside a `<Grid>`. |
+| `empty_message` | Text shown when the query returns no rows. |
+| `explain` | AI commentary footer, ✨ on hover (`explain="…"` pins your own question) — see [above](#ai-commentary-on-geo-maps). |
+| `annotations` | `false` keeps an explained BubbleMap/DotDensityMap commentary-only (no halo marks). |
+| `cache_ttl` / `max_rows` | Explain answer-cache TTL and row cap, as on charts. |
+
+## ChoroplethTime
+
+An animated choropleth: countries shaded by a metric, stepped across the
+`year=` column by a play/scrub control. With several `metrics` entries
+(`column|Label|unit`, comma-separated) a toggle switches between them; the
+color scale stays fixed across all years so frames compare honestly.
+`interval=` sets the frame duration in milliseconds.
+
+```markdown
+<ChoroplethTime data={world_indicators} id="iso" year="year"
+    metrics="population|Population|people,gdp_per_capita|GDP per capita|$"
+    scale="log" title="World development, 1960–2020" />
+```
+
+<ChoroplethTime data={world_indicators} id="iso" year="year" metrics="population|Population|people,gdp_per_capita|GDP per capita|$" scale="log" title="World development, 1960–2020" />
+
+## ChoroplethFacets
+
+Small multiples: one mini map per year on a **shared** color scale, for
+comparing snapshots side by side. `years=` picks the facets (default: every
+distinct year); `columns=` sets the grid width.
+
+```markdown
+<ChoroplethFacets data={world_indicators} id="iso" year="year"
+    value="life_expectancy" years="1960,1980,2000,2020" columns=2
+    label="Life expectancy" unit="years" scheme="greens"
+    title="Life expectancy by decade" />
+```
+
+<ChoroplethFacets data={world_indicators} id="iso" year="year" value="life_expectancy" years="1960,1980,2000,2020" columns=2 label="Life expectancy" unit="years" scheme="greens" title="Life expectancy by decade" />
+
+## BivariateMap
+
+Two metrics on one map: each country's `x` and `y` values are classed into
+terciles and colored from a 3×3 bivariate palette, with the classic square
+legend overlaid in the map's bottom-left corner. With a `year=` column,
+`year_value=` picks the snapshot (default: latest year).
+
+```markdown
+<BivariateMap data={world_indicators} id="iso" year="year" year_value="2020"
+    x="gdp_per_capita" y="life_expectancy"
+    xlabel="GDP per capita" ylabel="Life expectancy" xunit="$" yunit="years"
+    title="Wealth vs. health, 2020" />
+```
+
+<BivariateMap data={world_indicators} id="iso" year="year" year_value="2020" x="gdp_per_capita" y="life_expectancy" xlabel="GDP per capita" ylabel="Life expectancy" xunit="$" yunit="years" title="Wealth vs. health, 2020" />
+
+## BubbleMap
+
+A proportional-symbol map: a circle on each country's centroid, **area** ∝
+value, over a muted basemap. `max_radius=` caps the largest circle; several
+`metrics` get a toggle.
+
+```markdown
+<BubbleMap data={world_indicators} id="iso" year="year" year_value="2020"
+    metrics="population|Population|people" max_radius=35
+    title="Population, 2020" explain />
+```
+
+<BubbleMap data={world_indicators} id="iso" year="year" year_value="2020" metrics="population|Population|people" max_radius=35 title="Population, 2020" explain />
+
+## DotDensityMap
+
+One dot per fixed quantity, scattered inside each country's borders. A metric
+is `column|Label|unit|per_dot` — one dot stands for `per_dot` of the metric
+(omit it to derive a value that keeps the map under `max_dots`). Placement is
+seeded per country+metric, so the pattern is identical on every load.
+
+```markdown
+<DotDensityMap data={world_indicators} id="iso" year="year" year_value="2020"
+    metrics="population|Population|people|10000000"
+    title="Population, 2020 — 1 dot = 10M people" />
+```
+
+<DotDensityMap data={world_indicators} id="iso" year="year" year_value="2020" metrics="population|Population|people|10000000" title="Population, 2020 — 1 dot = 10M people" explain />
+
+## Custom regions
+
+The maps accept a custom basemap: point `geojson=` at a GeoJSON file (e.g.
+under your project's `assets/`) and name the feature property that carries
+your join key with `id_field=`. The frame **auto-fits** the geometry's extent,
+so a regional map fills the card, and pan/zoom/reset stay bounded to it;
+bubble and dot sizes stay card-relative. The bundled world geometry is Natural
+Earth 110m (public domain), enriched with ISO numeric codes — this demo's
+`europe.json` is a subset of it, so the default `id_field="iso"` join works
+unchanged:
+
+```markdown
+<BubbleMap data={world_indicators} id="iso" year="year" year_value="2020"
+    geojson="/assets/europe.json"
+    metrics="population|Population|people"
+    title="Population, 2020 — Europe" />
+```
+
+<BubbleMap data={world_indicators} id="iso" year="year" year_value="2020" geojson="/assets/europe.json" metrics="population|Population|people" title="Population, 2020 — Europe" explain />
+
+## Per-component attributes
+
+| Component | Attributes |
+| --------- | ---------- |
+| `ChoroplethTime` | `year` (default `year`), `metrics="col\|Label\|unit,…"` **(required)**, `interval` (ms, default `700`). |
+| `ChoroplethFacets` | `year`, `value` **(required)**, `years="1990,2000,…"`, `label`, `unit`, `columns` (default `3`). |
+| `BivariateMap` | `x`/`y` **(required)**, `xlabel`/`ylabel`, `xunit`/`yunit`, `year`, `year_value`. |
+| `BubbleMap` | `metrics` **(required)**, `max_radius` (default `40`), `year`, `year_value`. |
+| `DotDensityMap` | `metrics="col\|Label\|unit\|per_dot,…"` **(required)**, `dot_radius` (default `1.2`), `max_dots` (default `20000`), `year`, `year_value`. |
 
 
 <!-- source: docs/pages/components/table.md -->
@@ -1516,8 +1769,8 @@ Lay widgets out in equal-width columns. Wrap any components in `<Grid>`; set
 A child can span more than one column with `col-span=`:
 
 <Grid cols=3>
-  <LineChart data={downloads_by_month} x="month" y="downloads" col-span=2 title="Trend (spans 2 cols)" />
-  <BarChart data={channel_totals} x="channel" y="downloads" title="By channel" />
+  <LineChart data={downloads_by_month} x="month" y="downloads" col-span=2 title="Trend (spans 2 cols)" explain />
+  <BarChart data={channel_totals} x="channel" y="downloads" title="By channel" explain />
 </Grid>
 
 | Attribute        | Purpose                                          |
@@ -1551,10 +1804,10 @@ a tab bar.
 
 <Tabs name="view">
   <Tab title="Trend">
-    <LineChart data={downloads_by_month} x="month" y="downloads" title="Downloads over time" />
+    <LineChart data={downloads_by_month} x="month" y="downloads" title="Downloads over time" explain />
   </Tab>
   <Tab title="By channel">
-    <BarChart data={channel_totals} x="channel" y="downloads" title="Downloads by channel" />
+    <BarChart data={channel_totals} x="channel" y="downloads" title="Downloads by channel" explain />
   </Tab>
 </Tabs>
 
@@ -1611,7 +1864,7 @@ ORDER BY month
 
 <Dropdown name="channel" data={all_channels} column="channel" label="Channel" />
 
-<LineChart data={dl_by_channel} x="month" y="downloads" title="Downloads (filtered)" />
+<LineChart data={dl_by_channel} x="month" y="downloads" title="Downloads (filtered)" explain />
 
 Pick a channel — the chart re-queries. The `'${channel}' = ''` guard makes "no
 selection" mean "all".
@@ -1629,7 +1882,7 @@ ORDER BY month
 
 <Dropdown name="channels" data={all_channels} column="channel" label="Channels" multi />
 
-<LineChart data={dl_multi} x="month" y="downloads" title="Downloads (multi-select)" />
+<LineChart data={dl_multi} x="month" y="downloads" title="Downloads (multi-select)" explain />
 
 | Attribute   | Purpose                                                  |
 | ----------- | -------------------------------------------------------- |
@@ -1698,7 +1951,7 @@ ORDER BY date
 
 <DateRange name="period" label="Period" start_param="from" end_param="to" presets="last_7_days,last_30_days,custom" />
 
-<LineChart data={daily_in_range} x="date" y="visits" title="Visits in range" />
+<LineChart data={daily_in_range} x="date" y="visits" title="Visits in range" explain />
 
 `default=` seeds a preset on first load (URL params still win):
 
@@ -1735,7 +1988,7 @@ ORDER BY date
 
 <Toggle name="busy" label="Busy days only" />
 
-<LineChart data={daily_traffic} x="date" y="visits" title="Daily visits" />
+<LineChart data={daily_traffic} x="date" y="visits" title="Daily visits" explain />
 
 Flip the switch — when **off** it stores `""`, so the `'${busy}' = ''` guard
 passes and every day shows; when **on** it stores `"true"`, the guard fails, and
@@ -1769,7 +2022,7 @@ ORDER BY date
 
 <Toggle name="weekend" label="Weekends only" on_value="Yes" off_value="No" />
 
-<LineChart data={daily_weekend} x="date" y="visits" title="Visits (weekend vs weekday)" />
+<LineChart data={daily_weekend} x="date" y="visits" title="Visits (weekend vs weekday)" explain />
 
 Here **checked** sends `weekend = 'Yes'` (weekend days) and **unchecked** sends
 `'No'` (weekdays) — there's no "show all" state, so both directions narrow the
@@ -1880,7 +2133,7 @@ ORDER BY price DESC
 
 <RangeSlider name="price" min={500} max={1500} step={50} default={[700,1300]} label="Price ($)" format="currency" currency="$" />
 
-<BarChart data={devices_in_range} x="device" y="price" title="Devices in price range" />
+<BarChart data={devices_in_range} x="device" y="price" title="Devices in price range" explain />
 
 Drag either handle — the chart re-queries. The readout above the track shows the
 live low/high, formatted with the same `format=`/`currency=` options the other
@@ -1924,32 +2177,6 @@ Filter controls drive **server-side** SQL substitution, so they're stripped from
 [static builds](/exporting) automatically.
 
 
-<!-- source: docs/pages/components/site-search.md -->
-
-# SiteSearch
-
-Full-text search across **every page** of the project, ranked client-side. Unlike
-the [Search](/components/search) *filter*, it searches a static index of all pages
-(not a query), so it survives static builds. Dashdown already puts one in the app
-header and the mobile menu — add `<SiteSearch>` in a page for an extra in-context
-box.
-
-```markdown
-<SiteSearch placeholder="Search the docs…" max_results="8" />
-```
-
-<SiteSearch placeholder="Search the docs…" />
-
-| Attribute     | Default                 | Purpose                  |
-| ------------- | ----------------------- | ------------------------ |
-| `placeholder` | `Search documentation…` | Input placeholder.       |
-| `label`       | `Search`                | Accessible label.        |
-| `max_results` | `8`                     | How many results to show.|
-
-For the full design — index, ranking, static vs live — see the
-[Full-text search](/search) page.
-
-
 <!-- source: docs/pages/components/button-group.md -->
 
 # ButtonGroup
@@ -1973,7 +2200,7 @@ ORDER BY price DESC
 
 <ButtonGroup name="tier" label="Tier" options="High,Mid,Budget" />
 
-<BarChart data={devices_by_tier} x="device" y="price" title="Devices by tier" />
+<BarChart data={devices_by_tier} x="device" y="price" title="Devices by tier" explain />
 
 Click a segment — the chart re-queries. Click **All** to drop the filter again
 (selecting a segment doesn't toggle off, so "All" is how you clear it).
@@ -2024,7 +2251,7 @@ ORDER BY downloads DESC
 
 <Combobox name="country" data={countries} column="country" label="Country" placeholder="Search countries…" />
 
-<BarChart data={country_rows} x="country" y="downloads" title="Downloads by country" />
+<BarChart data={country_rows} x="country" y="downloads" title="Downloads by country" explain />
 
 Start typing — the panel lists matching values fetched from the server; pick one
 and the chart re-queries. The **×** clears the selection.
@@ -2050,7 +2277,7 @@ ORDER BY downloads DESC
 
 <Combobox name="countries" data={countries} column="country" label="Countries" multi placeholder="Add a country…" />
 
-<BarChart data={country_multi} x="country" y="downloads" title="Downloads (selected countries)" />
+<BarChart data={country_multi} x="country" y="downloads" title="Downloads (selected countries)" explain />
 
 Picks show as removable chips before the search box; the panel marks chosen rows
 with a ✓ and stays open so you can add several. **Backspace** on an empty input
@@ -2101,7 +2328,7 @@ ORDER BY rating DESC
 
 <Slider name="min_rating" min={0} max={5} step={0.1} default={4} label="Min rating" />
 
-<BarChart data={devices_rated} x="device" y="rating" title="Devices at or above the rating" />
+<BarChart data={devices_rated} x="device" y="rating" title="Devices at or above the rating" explain />
 
 Drag the handle — the chart re-queries. The readout above the track shows the
 live value, formatted with the same `format=`/`currency=` options the other
@@ -2124,3 +2351,29 @@ the single-threshold control.
 
 Filter controls drive **server-side** SQL substitution, so they're stripped from
 [static builds](/exporting) automatically.
+
+
+<!-- source: docs/pages/components/site-search.md -->
+
+# SiteSearch
+
+Full-text search across **every page** of the project, ranked client-side. Unlike
+the [Search](/components/search) *filter*, it searches a static index of all pages
+(not a query), so it survives static builds. Dashdown already puts one in the app
+header and the mobile menu — add `<SiteSearch>` in a page for an extra in-context
+box.
+
+```markdown
+<SiteSearch placeholder="Search the docs…" max_results="8" />
+```
+
+<SiteSearch placeholder="Search the docs…" />
+
+| Attribute     | Default                 | Purpose                  |
+| ------------- | ----------------------- | ------------------------ |
+| `placeholder` | `Search documentation…` | Input placeholder.       |
+| `label`       | `Search`                | Accessible label.        |
+| `max_results` | `8`                     | How many results to show.|
+
+For the full design — index, ranking, static vs live — see the
+[Full-text search](/search) page.

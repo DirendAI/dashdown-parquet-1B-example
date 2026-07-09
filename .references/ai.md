@@ -179,8 +179,94 @@ attribute (and one-hour default) `<Ask>` takes:
            explain="Is growth accelerating or slowing?" cache_ttl=86400 />
 ```
 
-Omitted from static builds (on-demand generation needs a live
-server — the same posture as the ↻ refresh button).
+### Annotations on the chart
+
+On line, bar, scatter, combo, and candlestick charts — and on box plots and
+violins — explain doesn't just write: it can **mark the chart itself**: a
+dashed threshold line, a shaded range band, a dot on the peak, a highlighted
+bar, a marked trading session, an outlined box. Grid charts get an **outlined
+cell**: `<HeatmapChart>` on the cited row/column cell, `<CalendarHeatmap>` on
+the cited day (including "the busiest day", recomputed from the live data).
+Pie and funnel charts get a called-out slice or stage (a dashed outline, with
+the annotation's label as a leader-line callout on pies), and `<MapChart>`
+gets a highlighted region with its label drawn on the map. On the SVG geo maps
+[`<BubbleMap>` and `<DotDensityMap>`](/components/maps) the mark is a dashed
+**halo ring** with a leader-line label on the cited country. Each mark is cited from the commentary
+by a small numbered chip (hover or focus a chip to bold its mark; the chip's
+tooltip carries the label). The marks appear when the commentary opens and
+clear when you close the footer. `annotations=false` on any chart keeps the
+commentary but never asks for (or draws) marks.
+
+Restraint is enforced, not just prompted: the model may propose at most a
+handful of annotations (an empty set is a perfectly good answer for an
+unremarkable chart), and every candidate is **validated server-side against
+the full query result** — a value outside the data's actual range, a category
+that doesn't exist, or a series the chart doesn't draw is silently dropped.
+Extremes ("the maximum") are recomputed from the live data rather than trusting
+the model's coordinates, so marks stay correct as filters change.
+
+Chart types with no mark a validated annotation could safely target keep
+**commentary-only** explain — by decision, not omission: radar, gauge, sankey,
+graph, sunburst, tree, parallel, theme river, and treemap, plus faceted pies
+(`series=` small multiples) and the choropleth geo maps
+(`<ChoroplethTime>`/`<ChoroplethFacets>`/`<BivariateMap>` — facets, animation
+frames, and two-metric encodings give one static mark nothing stable to point
+at). Charts bound to a [`live` streaming query](/realtime) are also
+commentary-only — their data changes under the marks every poll interval.
+
+#### See it in action
+
+The charts below are live — hover one and click its ✨ sparkle. The commentary
+types in with numbered chips, and any marks the model proposed (and the server
+validated) paint onto the plot. Each run may mark different things, or nothing
+at all — restraint is the point:
+
+```markdown
+<LineChart data={monthly_downloads} x="month" y="downloads" title="Monthly downloads"
+           explain="What is the trend, and which months stand out?" />
+```
+
+<LineChart data={monthly_downloads} x="month" y="downloads" title="Monthly downloads" explain="What is the trend, and which months stand out?" />
+
+On part-of-whole charts the mark is a called-out slice or stage — a dashed
+outline, with the annotation's label as a leader-line callout on pies:
+
+```markdown
+<PieChart data={downloads_by_channel} x="channel" y="downloads" title="Downloads by channel" explain />
+<FunnelChart data={funnel_stages} x="stage" y="users" title="Visitor funnel" explain />
+```
+
+<Grid cols=2>
+<PieChart data={downloads_by_channel} x="channel" y="downloads" title="Downloads by channel" explain />
+<FunnelChart data={funnel_stages} x="stage" y="users" title="Visitor funnel" explain />
+</Grid>
+
+And on a `<MapChart>` the model can point at regions — each proposal is
+validated against the locations the query actually returned, so it can never
+highlight a country that isn't in the data:
+
+```markdown
+<MapChart data={downloads_by_country} location="country" value="downloads"
+          title="Downloads by country" explain />
+```
+
+<MapChart data={downloads_by_country} location="country" value="downloads" title="Downloads by country" height=380 explain />
+
+The SVG geo maps work the same way with a **halo ring**: on a
+[`<BubbleMap>` or `<DotDensityMap>`](/components/maps) the model cites
+countries by the same join id the data carries, each proposal is validated
+against the ids in the active year slice (a country with nothing drawn can't
+earn a halo), and a halo the model scoped to one metric shows only while that
+metric is toggled active.
+
+`max_rows=` on the chart tunes how many rows the model sees (annotated
+explains default to 200 — more than `<Ask>`'s 50 — so proposals ground in the
+full picture).
+
+Explain works in [static builds](#static-builds) too: the answer — commentary,
+chips, and annotations — is generated once at build time and baked into the
+export; the first click on the sparkle retrieves that snapshot, exactly like
+serve mode. Only the ↻ regenerate affordance needs a live server.
 
 ## Configuration
 
@@ -282,9 +368,25 @@ provider.
 
 `dashdown build` bakes one answer JSON per `<Ask>` def into the export, so the
 commentary ships in a static site with **no server or API key** at view time — the
-answer is computed once at build. The model attribution is baked in too, but the ↻
-refresh affordance is omitted — a baked answer is fixed, with no live endpoint to
-regenerate against.
+answer is computed once at build. Chart `explain` bakes the same way: the
+button and footer ship in the export, and the first click retrieves the baked
+snapshot (commentary + annotations) instead of calling a server. The model
+attribution is baked in too, but the ↻ refresh affordance is omitted — a baked
+answer is fixed, with no live endpoint to regenerate against.
+
+:::note Baked answers describe unfiltered data
+Filter controls are stripped from a static export, and each answer is baked
+once with the **default (empty) filter state** — so baked commentary and
+annotations describe the unfiltered data, never a filtered view.
+:::
+
+:::warning Baked answers are world-readable files
+A baked answer is an ordinary static JSON file (`_dashdown/data/_ask/…`), the
+same exposure class as the export's baked query snapshots. If your live
+dashboard sits behind the built-in `auth:`, remember that an export of it does
+not — don't publish an export whose commentary summarizes data you wouldn't
+publish directly.
+:::
 
 ## Try it
 

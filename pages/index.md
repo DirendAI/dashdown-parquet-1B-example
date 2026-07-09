@@ -28,7 +28,7 @@ Six years of monthly trips, one line per service — the yellow cab, the green
 cab, Uber and Lyft. Each line is that service's own volume, so the COVID-19
 collapse in early 2020 and the long climb back read straight off the axis.
 
-<LineChart data={monthly_by_service} x="month" y="trips" series="service" title="Monthly trips by service" />
+<LineChart data={monthly_by_service} x="month" y="trips" series="service" title="Monthly trips by service" explain />
 
 <Ask data={monthly_by_service} inline replay="always">Write one flowing paragraph, in the voice of a data journalist, telling the story this chart shows: the COVID-19 collapse in early 2020, the slow recovery, and how Uber, Lyft and the yellow cab ended up splitting the market. Cite a few concrete numbers (trips, months, rough percentages). Do not use bullet points or a heading — just prose.</Ask>
 
@@ -36,8 +36,8 @@ Money and market share tell the same story from two more angles — who carries
 the trips, and who collects the fares:
 
 <Grid cols=2>
-<ThemeRiver data={monthly_by_service} x="month" y="share_pct" series="service" title="Market share, % of trips" />
-<BarChart data={monthly_by_service} x="month" y="revenue" series="service" stacked title="Rider spend per month" format="currency" decimals=0 />
+<ThemeRiver data={monthly_by_service} x="month" y="share_pct" series="service" title="Market share, % of trips" explain />
+<BarChart data={monthly_by_service} x="month" y="revenue" series="service" stacked title="Rider spend per month" format="currency" decimals=0 explain />
 </Grid>
 
 <Ask data={monthly_by_service} inline replay="always">In one short paragraph of prose (no heading, no lists), describe how the share of trips and the monthly rider spend have shifted between the yellow cab and the ride-hail apps since 2020. Name the current market-share leader and roughly what fraction of trips it carries.</Ask>
@@ -45,8 +45,8 @@ the trips, and who collects the fares:
 Fares and tips are where the two worlds diverge most:
 
 <Grid cols=2>
-<LineChart data={monthly_by_service} x="month" y="avg_fare" series="service" title="Average base fare" format="currency" />
-<BarChart data={tip_by_service} x="service" y="tip_pct" title="Average tip, % of fare (card / in-app)" format="number" decimals=1 suffix="%" />
+<LineChart data={monthly_by_service} x="month" y="avg_fare" series="service" title="Average base fare" format="currency" explain />
+<BarChart data={tip_by_service} x="service" y="tip_pct" title="Average tip, % of fare (card / in-app)" format="number" decimals=1 suffix="%" explain />
 </Grid>
 
 <Ask data={monthly_by_service} inline replay="always">Write one short paragraph (prose only, no heading) on the tipping gap between taxis and ride-hail apps in this data. Note that cab tips are recorded only on card payments while Uber/Lyft tips are always in-app, so the comparison is imperfect — but the gap is still striking. Give the rough tip percentages for each.</Ask>
@@ -62,11 +62,11 @@ TLC publishes with a ~2-month lag; the freshest month on file is
 <Value data={latest_summary} column="trips" format="number" decimals=0 /> trips —
 each one a row in the raw files queried below.
 
-<BarChart data={daily_trips} x="day" y="trips" title="Every single day" />
+<BarChart data={daily_trips} x="day" y="trips" title="Every single day" explain />
 
 <Grid cols=2>
-<PieChart data={share_donut} x="service" y="trips" donut title="Who owned the street" />
-<LineChart data={hourly_by_service} x="hour" y="trips" series="service" title="Trips by hour of day" />
+<PieChart data={share_donut} x="service" y="trips" donut title="Who owned the street" explain />
+<LineChart data={hourly_by_service} x="hour" y="trips" series="service" title="Trips by hour of day" explain />
 </Grid>
 
 <Ask data={share_donut,hourly_by_service} inline replay="always">Write one paragraph of prose (no heading, no lists) about the newest month: which service carried the most trips and roughly its share, and what the by-hour curve says about when New Yorkers actually ride — the morning and evening peaks and the late-night pattern.</Ask>
@@ -76,8 +76,8 @@ each one a row in the raw files queried below.
 <Ask data={dow_hour_heatmap} inline replay="always">In one short paragraph of prose, describe the busiest weekday-and-hour combinations in this heatmap — the commuter peaks versus the Friday and Saturday late-night surge — as if narrating the rhythm of the city's week. No heading, no lists.</Ask>
 
 <Grid cols=2>
-<BarChart data={top_zones} x="zone" y="trips" horizontal title="Busiest pickup zones" />
-<SankeyChart data={borough_flows} source="source" target="target" value="trips" title="Borough → borough flows" />
+<BarChart data={top_zones} x="zone" y="trips" horizontal title="Busiest pickup zones" explain />
+<SankeyChart data={borough_flows} source="source" target="target" value="trips" title="Borough → borough flows" explain />
 </Grid>
 
 <Ask data={top_zones,borough_flows} inline replay="always">Write one closing paragraph of prose (no heading, no lists) on the geography of the newest month: which pickup zones top the list (note if the airports rank high), and what the borough-to-borough flows reveal about how much of the city's traffic begins and ends inside Manhattan.</Ask>
